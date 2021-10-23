@@ -268,14 +268,16 @@ function test_compilation()
 
 clear
 
-test_compilation
-
-test_norminette
-test_forbidden_functions
+# test_compilation
+# test_norminette
+# test_forbidden_functions
 
 printf "${YELLOW}%63s\n${NC}" "[LEAKS][SORT][SCORE]"
 
 all_test 
+# declare -a params
+params="\0";
+all_test $params
 all_test 1
 all_test 1 2 
 all_test 1 2 3
@@ -359,6 +361,5 @@ test_error --4
 test_error 10 45 4 2 2147483650
 test_error /dev/urandom
 test_error /dev/null
-test_error -0
 
-make fclean -C $DIR > /dev/null 2>&1
+#make fclean -C $DIR > /dev/null 2>&1

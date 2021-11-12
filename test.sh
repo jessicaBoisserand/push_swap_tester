@@ -9,7 +9,7 @@ YELLOW="\033[33m"
 BLUE="\033[34m"
 MAGENTA="\033[35m"
 
-DIR=../push_swap
+DIR=./push_swap
 
 function test_leaks()
 {
@@ -172,7 +172,7 @@ function all_test()
 function test_norminette()
 {
     printf "%-20s" "Norminette"
-    norm=$(norminette ../ | grep Error)
+    norm=$(norminette | grep Error)
     if [ -z "$norm" ]
     then
         printf "${GREEN}[OK]"
@@ -212,51 +212,51 @@ function test_compilation()
 {
     printf "%-20s" "Makefile"
 
-    if [ ! -f "../Makefile" ]
+    if [ ! -f "Makefile" ]
     then
         printf "${RED}[KO]\n"
         exit
     fi
 
-    make fclean -C ../ > /dev/null 2>&1 
-    make -C ../ > /dev/null 2>&1 
+    make fclean > /dev/null 2>&1 
+    make > /dev/null 2>&1 
     if [ $? != 0 ]
     then
         printf "${RED}[KO]\n"
         exit
     fi
 
-    ret=$(make -C ../ | grep "Nothing to be done for 'all'")
+    ret=$(make | grep "Nothing to be done for 'all'")
     if [ -z "$ret" ]
     then
         printf "${RED}[KO]\n"
         return 
     fi
-    make clean -C ../ > /dev/null 2>&1 
+    make clean > /dev/null 2>&1 
     if [ $? != 0 ]
     then
         printf "${RED}[KO]\n"
         return
     fi
 
-    make -C ../ > /dev/null 2>&1 
-    make fclean -C ../ > /dev/null 2>&1 
+    make > /dev/null 2>&1 
+    make fclean > /dev/null 2>&1 
     if [ $? != 0 ]
     then
         printf "${RED}[KO]\n"
         return
     fi
 
-    make -C ../ > /dev/null 2>&1 
-    make re -C ../ > /dev/null 2>&1 
+    make > /dev/null 2>&1 
+    make re > /dev/null 2>&1 
     if [ $? != 0 ]
     then
         printf "${RED}[KO]\n"
         return
     fi
 
-    make fclean -C ../ > /dev/null 2>&1 
-    make all -C ../ > /dev/null 2>&1 
+    make fclean > /dev/null 2>&1 
+    make all > /dev/null 2>&1 
     if [ $? != 0 ]
     then
         printf "${RED}[KO]\n"
@@ -268,16 +268,14 @@ function test_compilation()
 
 clear
 
-# test_compilation
-# test_norminette
-# test_forbidden_functions
+test_compilation
+
+test_norminette
+test_forbidden_functions
 
 printf "${YELLOW}%63s\n${NC}" "[LEAKS][SORT][SCORE]"
 
 all_test 
-# declare -a params
-params="\0";
-all_test $params
 all_test 1
 all_test 1 2 
 all_test 1 2 3
@@ -291,11 +289,16 @@ all_test 2 3 1
 printf "\n"
 
 all_test 1 2 3 4
+all_test 4 -4
+all_test "00"
 all_test -80 45 20 12 3
 all_test 10 45 4 2 2147483647
 all_test 10 45 4 2 -2147483648
 all_test 0
 all_test -0
+all_test ""
+all_test "1 2 3"
+
 printf "\n"
 
 params=$(shuf -z -i 0-500 -n 5| tr '\0' ' ')
@@ -332,7 +335,7 @@ params=$(shuf -z -i 0-500 -n 500| tr '\0' ' ')
 all_test $params
 params=$(shuf -z -i 0-500 -n 500| tr '\0' ' ')
 all_test $params 
-params=$(shuf -z -i 0-500 -n 500| tr '\0' ' ')
+params=$(x)
 all_test $params 
 params=$(shuf -z -i 0-500 -n 500| tr '\0' ' ')
 all_test $params 
@@ -349,17 +352,22 @@ printf "\n"
 printf "${YELLOW}%56s\n${NC}" "[LEAKS][ERROR]"
 
 test_error x
+test_error 0 -0
 test_error x x x
 test_error 10 x
 test_error x 10
+test_error 1 2 3 4 10 1
+test_error 1 1
+test_error 0 0
 test_error 1 2 3 4 10a
+test_error 1 1 3 4 10
 test_error 4 2 3 4 10a
 test_error 0 -0
-test_error 1 1
 test_error 00-8000 10 45
 test_error --4
 test_error 10 45 4 2 2147483650
 test_error /dev/urandom
 test_error /dev/null
 
-#make fclean -C $DIR > /dev/null 2>&1
+make fclean -C $DIR > /dev/null 2>&1
+exit 0
